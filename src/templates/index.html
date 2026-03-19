@@ -6,10 +6,8 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>AI 邮件智能助手</title>
     <meta name="description" content="XJTLU AI 邮件智能助手 - 自动搜索、提取与总结邮件内容">
-    <!-- Google Fonts -->
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap"
         rel="stylesheet">
-    <!-- Marked.js for Markdown -->
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
     <script>
         window.onload = function () {
@@ -19,15 +17,18 @@
         };
     </script>
     <style>
-        /* ====== CSS Variables — Light & Dark Themes ====== */
         :root {
             --primary: #6366f1;
             --primary-hover: #4f46e5;
             --primary-glow: rgba(99, 102, 241, 0.35);
+            --primary-light: rgba(99, 102, 241, 0.08);
             --accent: #ec4899;
             --success: #10b981;
+            --success-light: rgba(16, 185, 129, 0.1);
             --warning: #f59e0b;
+            --warning-light: rgba(245, 158, 11, 0.1);
             --error: #ef4444;
+            --error-light: rgba(239, 68, 68, 0.1);
 
             --bg-body: #f0f2f5;
             --bg-gradient: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
@@ -46,15 +47,18 @@
             --text-tertiary: #9ca3af;
             --text-on-primary: #ffffff;
 
-            --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.12);
+            --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.08);
+            --shadow-card-hover: 0 16px 48px rgba(0, 0, 0, 0.12);
             --shadow-btn: 0 4px 14px rgba(99, 102, 241, 0.35);
             --shadow-btn-hover: 0 8px 25px rgba(99, 102, 241, 0.45);
 
+            --radius-xl: 20px;
             --radius-lg: 16px;
             --radius-md: 12px;
             --radius-sm: 8px;
 
             --transition: 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+            --transition-fast: 0.15s cubic-bezier(0.4, 0, 0.2, 1);
         }
 
         [data-theme="dark"] {
@@ -75,11 +79,16 @@
             --text-tertiary: #64748b;
 
             --shadow-card: 0 12px 40px rgba(0, 0, 0, 0.4);
+            --shadow-card-hover: 0 16px 48px rgba(0, 0, 0, 0.5);
             --shadow-btn: 0 4px 14px rgba(99, 102, 241, 0.25);
             --shadow-btn-hover: 0 8px 25px rgba(99, 102, 241, 0.4);
+
+            --primary-light: rgba(99, 102, 241, 0.15);
+            --success-light: rgba(16, 185, 129, 0.15);
+            --warning-light: rgba(245, 158, 11, 0.15);
+            --error-light: rgba(239, 68, 68, 0.15);
         }
 
-        /* ====== Reset & Base ====== */
         *,
         *::before,
         *::after {
@@ -91,127 +100,261 @@
         body {
             font-family: 'Inter', 'Segoe UI', system-ui, -apple-system, sans-serif;
             background: var(--bg-gradient);
+            background-attachment: fixed;
             min-height: 100vh;
             display: flex;
-            justify-content: center;
-            align-items: flex-start;
-            padding: 40px 20px;
+            flex-direction: column;
+            align-items: center;
+            padding: 32px 20px 60px;
             color: var(--text-primary);
             transition: background var(--transition), color var(--transition);
         }
 
-        /* ====== Main Card ====== */
         .container {
             background: var(--bg-card);
-            padding: 48px 44px;
-            border-radius: var(--radius-lg);
+            padding: 0;
+            border-radius: var(--radius-xl);
             box-shadow: var(--shadow-card);
             width: 100%;
-            max-width: 860px;
+            max-width: 880px;
             -webkit-backdrop-filter: blur(20px);
             backdrop-filter: blur(20px);
             border: 1px solid var(--border-color);
             position: relative;
             transition: background var(--transition), border-color var(--transition), box-shadow var(--transition);
+            overflow: hidden;
         }
 
-        /* ====== Top Bar (Theme + Help) ====== */
-        .top-bar {
+        /* ====== Header ====== */
+        .app-header {
+            padding: 28px 40px 24px;
+            border-bottom: 1px solid var(--border-color);
+            background: var(--bg-card-inner);
+        }
+
+        .header-top {
             display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
             justify-content: flex-end;
-            gap: 10px;
-            margin-bottom: 24px;
         }
 
         .icon-btn {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            width: auto;
-            padding: 8px 16px;
-            font-size: 13px;
+            padding: 7px 14px;
+            font-size: 12.5px;
             font-weight: 500;
-            border-radius: var(--radius-sm);
+            border-radius: 20px;
             cursor: pointer;
             transition: all var(--transition);
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 6px;
-            box-shadow: none;
+            gap: 5px;
             text-decoration: none;
+            white-space: nowrap;
+            font-family: inherit;
         }
 
         .icon-btn:hover {
-            background: var(--bg-hover);
-            transform: translateY(-1px);
+            background: var(--primary-light);
+            border-color: var(--primary);
             color: var(--primary);
+            transform: translateY(-1px);
         }
 
-        .cookie-status-text {
-            margin-top: -10px;
-            margin-bottom: 16px;
-            font-size: 0.86rem;
-            color: var(--text-secondary);
-            font-weight: 600;
-        }
-
-        .cookie-status-text.ok {
-            color: var(--success);
-        }
-
-        .cookie-status-text.bad {
-            color: var(--error);
-        }
-
-        .cookie-status-text.warn {
-            color: var(--warning);
-        }
-
-        /* ====== Title ====== */
-        h1 {
+        .hero {
             text-align: center;
-            margin-bottom: 36px;
+        }
+
+        .hero h1 {
             font-weight: 800;
-            font-size: 2.4rem;
+            font-size: 2rem;
             letter-spacing: -0.03em;
             background: linear-gradient(135deg, var(--primary), var(--accent));
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
+            margin-bottom: 6px;
+            line-height: 1.2;
+        }
+
+        .hero-subtitle {
+            color: var(--text-tertiary);
+            font-size: 0.88rem;
+            font-weight: 400;
+        }
+
+        /* ====== Cookie Status Pill ====== */
+        .cookie-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 5px 14px;
+            border-radius: 20px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            transition: all var(--transition);
+            background: var(--bg-input);
+            color: var(--text-tertiary);
+            border: 1px solid var(--border-color);
+        }
+
+        .cookie-pill.ok {
+            background: var(--success-light);
+            color: var(--success);
+            border-color: var(--success);
+        }
+
+        .cookie-pill.bad {
+            background: var(--error-light);
+            color: var(--error);
+            border-color: var(--error);
+        }
+
+        .cookie-pill.warn {
+            background: var(--warning-light);
+            color: var(--warning);
+            border-color: var(--warning);
+        }
+
+        /* ====== Main Content ====== */
+        .main-content {
+            padding: 32px 40px;
+        }
+
+        /* ====== Welcome Banner ====== */
+        .welcome-banner {
+            padding: 14px 20px;
+            border-radius: var(--radius-sm);
+            margin-bottom: 24px;
+            font-size: 0.88rem;
+            font-weight: 500;
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            animation: fadeInDown 0.4s ease-out;
+            position: relative;
+        }
+
+        .welcome-banner .banner-close {
+            position: absolute;
+            right: 12px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            color: inherit;
+            opacity: 0.5;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            line-height: 1;
+            transition: opacity var(--transition-fast);
+        }
+
+        .welcome-banner .banner-close:hover {
+            opacity: 1;
+        }
+
+        .welcome-banner.info {
+            background: var(--primary-light);
+            color: var(--primary);
+            border: 1px solid rgba(99, 102, 241, 0.2);
+        }
+
+        .welcome-banner.reminder {
+            background: var(--warning-light);
+            color: #92400e;
+            border: 1px solid rgba(245, 158, 11, 0.25);
+        }
+
+        [data-theme="dark"] .welcome-banner.reminder {
+            color: var(--warning);
+        }
+
+        @keyframes fadeInDown {
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ====== Input Groups ====== */
+        .input-section {
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
+            margin-bottom: 24px;
+        }
+
         .input-group {
-            margin-bottom: 22px;
             position: relative;
         }
 
         .input-group label {
             display: block;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
             font-weight: 600;
             color: var(--text-secondary);
-            font-size: 0.9rem;
+            font-size: 0.88rem;
             letter-spacing: 0.01em;
         }
 
-        .input-group input[type="text"] {
+        .input-wrapper {
+            position: relative;
+            display: flex;
+            align-items: center;
+        }
+
+        .input-icon {
+            position: absolute;
+            left: 14px;
+            font-size: 16px;
+            pointer-events: none;
+            z-index: 1;
+            opacity: 0.6;
+        }
+
+        .input-wrapper input[type="text"],
+        .input-wrapper textarea {
             width: 100%;
-            padding: 14px 16px;
+            padding: 13px 16px 13px 42px;
             border: 2px solid var(--border-color);
             border-radius: var(--radius-sm);
-            font-size: 15px;
+            font-size: 14.5px;
             font-family: inherit;
             background: var(--bg-input);
             color: var(--text-primary);
             transition: all var(--transition);
         }
 
-        .input-group input[type="text"]:focus {
+        .input-wrapper textarea {
+            resize: vertical;
+            min-height: 48px;
+            max-height: 120px;
+            line-height: 1.5;
+            field-sizing: content;
+        }
+
+        .input-wrapper input[type="text"]:focus,
+        .input-wrapper textarea:focus {
             border-color: var(--border-focus);
             box-shadow: 0 0 0 3px var(--primary-glow);
             outline: none;
             background: var(--bg-input-focus);
+        }
+
+        .input-hint {
+            font-size: 0.76rem;
+            color: var(--text-tertiary);
+            margin-top: 4px;
         }
 
         /* ====== Primary Button ====== */
@@ -220,10 +363,10 @@
             background: linear-gradient(135deg, var(--primary), #8b5cf6);
             color: var(--text-on-primary);
             border: none;
-            padding: 16px;
+            padding: 15px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 17px;
+            font-size: 16px;
             font-weight: 700;
             font-family: inherit;
             letter-spacing: 0.02em;
@@ -233,12 +376,26 @@
             align-items: center;
             justify-content: center;
             gap: 10px;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .btn-primary::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(135deg, transparent 40%, rgba(255,255,255,0.15) 50%, transparent 60%);
+            transform: translateX(-100%);
+            transition: transform 0.6s ease;
+        }
+
+        .btn-primary:hover::after {
+            transform: translateX(100%);
         }
 
         .btn-primary:hover {
             transform: translateY(-2px);
             box-shadow: var(--shadow-btn-hover);
-            filter: brightness(1.05);
         }
 
         .btn-primary:active {
@@ -250,24 +407,140 @@
             cursor: not-allowed;
             transform: none;
             box-shadow: none;
-            filter: none;
         }
 
-        /* ====== Progress Steps (改进一) ====== */
-        .progress-container {
+        .btn-primary:disabled::after {
             display: none;
-            margin: 30px 0;
-            padding: 24px;
-            background: var(--bg-card-inner);
-            border-radius: var(--radius-md);
+        }
+
+        .btn-primary .spinner {
+            display: none;
+            width: 18px;
+            height: 18px;
+            border: 2.5px solid rgba(255,255,255,0.3);
+            border-top-color: white;
+            border-radius: 50%;
+            animation: spin 0.7s linear infinite;
+        }
+
+        .btn-primary.loading .spinner {
+            display: inline-block;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* ====== Search History ====== */
+        .history-section {
+            margin-top: 24px;
+        }
+
+        .section-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 10px;
+        }
+
+        .section-title {
+            font-size: 0.82rem;
+            font-weight: 600;
+            color: var(--text-tertiary);
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+        }
+
+        .btn-text {
+            background: none;
+            border: none;
+            color: var(--text-tertiary);
+            font-size: 0.76rem;
+            cursor: pointer;
+            padding: 4px 8px;
+            border-radius: 4px;
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+
+        .btn-text:hover {
+            color: var(--error);
+            background: var(--error-light);
+        }
+
+        .history-list {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+        }
+
+        .history-chip {
+            background: var(--bg-input);
             border: 1px solid var(--border-color);
+            color: var(--text-secondary);
+            padding: 6px 14px;
+            border-radius: 20px;
+            font-size: 0.8rem;
+            cursor: pointer;
+            transition: all var(--transition);
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            max-width: 260px;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .history-chip:hover {
+            background: var(--primary);
+            color: var(--text-on-primary);
+            border-color: var(--primary);
+            transform: translateY(-1px);
+            box-shadow: 0 4px 12px var(--primary-glow);
+        }
+
+        .history-chip .chip-keyword { font-weight: 600; }
+        .history-chip .chip-time { font-size: 0.7rem; opacity: 0.7; }
+
+        .history-empty {
+            color: var(--text-tertiary);
+            font-size: 0.8rem;
+            font-style: italic;
+        }
+
+        /* ====== Progress ====== */
+        .progress-container {
+            margin: 0;
+            padding: 24px 40px;
+            background: var(--bg-card-inner);
+            border-top: 1px solid var(--border-color);
+            border-bottom: 1px solid var(--border-color);
+            overflow: hidden;
+            max-height: 0;
+            opacity: 0;
+            transition: max-height 0.5s cubic-bezier(0.4, 0, 0.2, 1),
+                        opacity 0.3s ease,
+                        padding 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+            padding-top: 0;
+            padding-bottom: 0;
+        }
+
+        .progress-container.visible {
+            max-height: 200px;
+            opacity: 1;
+            padding-top: 24px;
+            padding-bottom: 24px;
         }
 
         .progress-steps {
             display: flex;
             justify-content: space-between;
             position: relative;
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .progress-steps::before {
@@ -304,17 +577,17 @@
         }
 
         .step-circle {
-            width: 38px;
-            height: 38px;
+            width: 36px;
+            height: 36px;
             border-radius: 50%;
             background: var(--bg-card-inner);
             border: 3px solid var(--border-color);
             display: flex;
             align-items: center;
             justify-content: center;
-            font-size: 16px;
+            font-size: 15px;
             transition: all 0.4s ease;
-            margin-bottom: 8px;
+            margin-bottom: 7px;
         }
 
         .step.active .step-circle {
@@ -330,163 +603,217 @@
         }
 
         .step-label {
-            font-size: 0.78rem;
+            font-size: 0.74rem;
             font-weight: 600;
             color: var(--text-tertiary);
             text-align: center;
             transition: color var(--transition);
         }
 
-        .step.active .step-label {
-            color: var(--primary);
-        }
-
-        .step.completed .step-label {
-            color: var(--success);
-        }
+        .step.active .step-label { color: var(--primary); }
+        .step.completed .step-label { color: var(--success); }
 
         .progress-detail {
             text-align: center;
             color: var(--text-secondary);
-            font-size: 0.92rem;
+            font-size: 0.88rem;
             font-weight: 500;
             animation: pulse 2s infinite;
         }
 
         @keyframes stepPulse {
-
-            0%,
-            100% {
-                box-shadow: 0 0 10px var(--primary-glow);
-            }
-
-            50% {
-                box-shadow: 0 0 25px var(--primary-glow);
-            }
+            0%, 100% { box-shadow: 0 0 10px var(--primary-glow); }
+            50% { box-shadow: 0 0 25px var(--primary-glow); }
         }
 
         @keyframes pulse {
-
-            0%,
-            100% {
-                opacity: 0.7;
-            }
-
-            50% {
-                opacity: 1;
-            }
+            0%, 100% { opacity: 0.7; }
+            50% { opacity: 1; }
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(15px);
-            }
-
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(15px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         /* ====== Results ====== */
         .results-container {
-            margin-top: 30px;
-            animation: fadeInUp 0.5s ease-out;
+            padding: 32px 40px;
+            border-top: 1px solid var(--border-color);
         }
 
-        .card {
+        .results-hidden { display: none; }
+
+        .results-history-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 20px;
+        }
+
+        .results-history-title {
+            font-size: 1.05rem;
+            font-weight: 700;
+            color: var(--text-primary);
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .btn-clear-results {
+            background: var(--bg-input);
+            border: 1px solid var(--border-color);
+            color: var(--text-tertiary);
+            padding: 6px 14px;
+            font-size: 0.78rem;
+            font-weight: 600;
+            border-radius: 20px;
+            cursor: pointer;
+            transition: all var(--transition);
+            font-family: inherit;
+        }
+
+        .btn-clear-results:hover {
+            color: var(--error);
+            background: var(--error-light);
+            border-color: var(--error);
+        }
+
+        .result-entry {
             background: var(--bg-card-inner);
             border-radius: var(--radius-md);
-            padding: 24px;
-            margin-bottom: 20px;
+            padding: 0;
+            margin-bottom: 16px;
             border: 1px solid var(--border-color);
-            transition: background var(--transition), border-color var(--transition);
+            transition: all var(--transition);
+            animation: fadeInUp 0.5s ease-out;
+            overflow: hidden;
+        }
+
+        .result-entry:hover {
+            box-shadow: var(--shadow-card-hover);
+            border-color: rgba(99, 102, 241, 0.2);
+        }
+
+        .result-meta {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: center;
+            gap: 10px;
+            padding: 16px 20px;
+            background: var(--bg-input);
+            border-bottom: 1px solid var(--border-color);
+        }
+
+        .result-meta-tag {
+            background: linear-gradient(135deg, var(--primary), #8b5cf6);
+            color: var(--text-on-primary);
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: 0.76rem;
+            font-weight: 700;
+        }
+
+        .result-meta-time {
+            color: var(--text-tertiary);
+            font-size: 0.78rem;
+        }
+
+        .result-meta-instruction {
+            color: var(--text-secondary);
+            font-size: 0.8rem;
+            font-style: italic;
+            flex-basis: 100%;
+            overflow: hidden;
+            text-overflow: ellipsis;
+            white-space: nowrap;
+        }
+
+        .result-body {
+            padding: 20px;
+        }
+
+        .result-summary-section {
+            margin-bottom: 16px;
         }
 
         .card-header {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border-color);
+            margin-bottom: 14px;
+            padding-bottom: 10px;
+            border-bottom: 1px solid var(--border-color);
         }
 
         .card-title {
-            font-size: 1.15rem;
+            font-size: 1rem;
             font-weight: 700;
             color: var(--text-primary);
             display: flex;
             align-items: center;
-            gap: 10px;
+            gap: 8px;
         }
 
-        /* Copy Button (改进一) */
         .btn-copy {
             background: var(--bg-input);
             border: 1px solid var(--border-color);
             color: var(--text-secondary);
-            padding: 6px 14px;
-            font-size: 12px;
+            padding: 5px 12px;
+            font-size: 11.5px;
             font-weight: 600;
-            border-radius: 6px;
+            border-radius: 20px;
             cursor: pointer;
             transition: all var(--transition);
-            display: flex;
+            display: inline-flex;
             align-items: center;
-            gap: 5px;
+            gap: 4px;
             font-family: inherit;
         }
 
         .btn-copy:hover {
-            background: var(--bg-hover);
+            background: var(--primary-light);
             color: var(--primary);
+            border-color: var(--primary);
         }
 
         .btn-copy.copied {
-            background: #d1fae5;
+            background: var(--success-light);
             color: #065f46;
-            border-color: #a7f3d0;
+            border-color: var(--success);
         }
 
         /* Summary Markdown Styles */
-        #summaryResult {
+        .summary-content {
             line-height: 1.8;
             color: var(--text-secondary);
-            font-size: 0.95rem;
+            font-size: 0.93rem;
         }
 
-        #summaryResult h1,
-        #summaryResult h2,
-        #summaryResult h3 {
-            margin-top: 1.5em;
-            margin-bottom: 0.5em;
+        .summary-content h1,
+        .summary-content h2,
+        .summary-content h3 {
+            margin-top: 1.2em;
+            margin-bottom: 0.4em;
             color: var(--text-primary);
         }
 
-        #summaryResult ul,
-        #summaryResult ol {
+        .summary-content ul,
+        .summary-content ol {
             padding-left: 20px;
-            margin-bottom: 1em;
+            margin-bottom: 0.8em;
         }
 
-        #summaryResult li {
-            margin-bottom: 0.5em;
-        }
+        .summary-content li { margin-bottom: 0.4em; }
+        .summary-content strong { color: var(--primary); }
 
-        #summaryResult strong {
-            color: var(--primary);
-        }
-
-        #summaryResult code {
+        .summary-content code {
             background: var(--bg-code);
             padding: 2px 6px;
             border-radius: 4px;
-            font-size: 0.88em;
+            font-size: 0.86em;
         }
 
-        /* Typewriter Cursor (改进一) */
         .typewriter-cursor {
             display: inline-block;
             width: 2px;
@@ -498,156 +825,130 @@
         }
 
         @keyframes blink {
-
-            0%,
-            100% {
-                opacity: 1;
-            }
-
-            50% {
-                opacity: 0;
-            }
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0; }
         }
 
-        /* Email List */
+        /* Email List - Collapsible */
+        .result-email-section {}
+
+        .email-toggle {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            cursor: pointer;
+            user-select: none;
+            padding: 0;
+        }
+
+        .email-toggle .toggle-arrow {
+            transition: transform var(--transition);
+            font-size: 12px;
+            color: var(--text-tertiary);
+        }
+
+        .email-toggle.collapsed .toggle-arrow {
+            transform: rotate(-90deg);
+        }
+
+        .email-list-wrapper {
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+            max-height: 400px;
+        }
+
+        .email-list-wrapper.collapsed {
+            max-height: 0;
+        }
+
         .email-list {
-            max-height: 320px;
+            max-height: 300px;
             overflow-y: auto;
+            padding-top: 4px;
         }
 
         .email-item {
-            padding: 12px 14px;
-            border-bottom: 1px solid var(--border-color);
-            transition: background-color var(--transition);
+            padding: 10px 14px;
             border-radius: 6px;
+            transition: all var(--transition-fast);
             margin-bottom: 2px;
+            display: flex;
+            align-items: flex-start;
+            gap: 12px;
         }
 
         .email-item:hover {
             background: var(--bg-hover);
+            transform: translateX(4px);
         }
 
-        .email-item:last-child {
-            border-bottom: none;
+        .email-item-num {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            border-radius: 50%;
+            background: var(--primary-light);
+            color: var(--primary);
+            font-size: 0.72rem;
+            font-weight: 700;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-top: 2px;
         }
+
+        .email-item-content { flex: 1; min-width: 0; }
 
         .email-subject {
             font-weight: 600;
             color: var(--text-primary);
-            margin-bottom: 4px;
-            font-size: 0.93rem;
-        }
-
-        .email-date {
-            color: var(--text-tertiary);
-            font-size: 0.82rem;
-        }
-
-        .status-badge {
-            display: inline-block;
-            padding: 4px 10px;
-            border-radius: 20px;
-            font-size: 0.72rem;
-            font-weight: 700;
-            text-transform: uppercase;
-            letter-spacing: 0.03em;
-        }
-
-        .status-success {
-            background: #d1fae5;
-            color: #065f46;
-        }
-
-        .status-error {
-            background: #fee2e2;
-            color: #991b1b;
-        }
-
-        /* ====== Search History (改进三) ====== */
-        .history-section {
-            margin-top: 20px;
-            margin-bottom: 24px;
-        }
-
-        .history-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 10px;
-        }
-
-        .history-title {
-            font-size: 0.85rem;
-            font-weight: 600;
-            color: var(--text-tertiary);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-        }
-
-        .btn-clear-history {
-            background: none;
-            border: none;
-            color: var(--text-tertiary);
-            font-size: 0.78rem;
-            cursor: pointer;
-            padding: 4px 8px;
-            border-radius: 4px;
-            transition: all var(--transition);
-            font-family: inherit;
-            width: auto;
-        }
-
-        .btn-clear-history:hover {
-            color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
-        }
-
-        .history-list {
-            display: flex;
-            flex-wrap: wrap;
-            gap: 8px;
-        }
-
-        .history-chip {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-secondary);
-            padding: 6px 14px;
-            border-radius: 20px;
-            font-size: 0.82rem;
-            cursor: pointer;
-            transition: all var(--transition);
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            max-width: 280px;
+            margin-bottom: 3px;
+            font-size: 0.9rem;
             overflow: hidden;
             text-overflow: ellipsis;
             white-space: nowrap;
         }
 
-        .history-chip:hover {
-            background: var(--primary);
-            color: var(--text-on-primary);
-            border-color: var(--primary);
-            transform: translateY(-1px);
-        }
-
-        .history-chip .chip-keyword {
-            font-weight: 600;
-        }
-
-        .history-chip .chip-time {
-            font-size: 0.72rem;
-            opacity: 0.7;
-        }
-
-        .history-empty {
+        .email-date {
             color: var(--text-tertiary);
-            font-size: 0.82rem;
-            font-style: italic;
-            padding: 4px 0;
+            font-size: 0.78rem;
+        }
+
+        .status-badge {
+            display: inline-block;
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.03em;
+        }
+
+        .status-success {
+            background: var(--success-light);
+            color: var(--success);
+        }
+
+        .status-error {
+            background: var(--error-light);
+            color: var(--error);
+        }
+
+        /* ====== Footer ====== */
+        .app-footer {
+            padding: 16px 40px;
+            border-top: 1px solid var(--border-color);
+            text-align: center;
+            color: var(--text-tertiary);
+            font-size: 0.76rem;
+        }
+
+        .app-footer a {
+            color: var(--primary);
+            text-decoration: none;
+        }
+
+        .app-footer a:hover {
+            text-decoration: underline;
         }
 
         /* ====== Modal ====== */
@@ -667,51 +968,121 @@
 
         .modal-content {
             background: var(--bg-card);
-            margin: 5% auto;
-            padding: 36px;
+            margin: 4vh auto;
+            padding: 32px;
             border: 1px solid var(--border-color);
-            width: 90%;
-            max-width: 800px;
-            border-radius: var(--radius-lg);
+            width: 92%;
+            max-width: 720px;
+            border-radius: var(--radius-xl);
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
             position: relative;
             animation: fadeInUp 0.3s ease;
             color: var(--text-primary);
+            max-height: 90vh;
+            overflow-y: auto;
         }
 
         .close {
             color: var(--text-tertiary);
-            float: right;
-            font-size: 28px;
+            position: absolute;
+            right: 20px;
+            top: 20px;
+            font-size: 24px;
             font-weight: bold;
             cursor: pointer;
             transition: color var(--transition);
             line-height: 1;
+            width: 32px;
+            height: 32px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            border-radius: 50%;
         }
 
         .close:hover {
             color: var(--text-primary);
+            background: var(--bg-hover);
         }
 
-        /* ====== Settings Modal Form Styles ====== */
+        .modal-heading {
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 2px solid var(--border-color);
+            font-size: 1.2rem;
+            padding-right: 40px;
+        }
+
+        /* ====== Settings Modal ====== */
         .settings-form {
             display: flex;
             flex-direction: column;
             gap: 16px;
         }
-        
+
+        .settings-form .input-group label {
+            margin-bottom: 6px;
+        }
+
+        .settings-form input[type="text"],
+        .settings-form input[type="password"] {
+            width: 100%;
+            padding: 12px 14px;
+            border: 2px solid var(--border-color);
+            border-radius: var(--radius-sm);
+            font-size: 14px;
+            font-family: inherit;
+            background: var(--bg-input);
+            color: var(--text-primary);
+            transition: all var(--transition);
+        }
+
+        .settings-form input[type="text"]:focus,
+        .settings-form input[type="password"]:focus {
+            border-color: var(--border-focus);
+            box-shadow: 0 0 0 3px var(--primary-glow);
+            outline: none;
+            background: var(--bg-input-focus);
+        }
+
+        .password-wrapper {
+            position: relative;
+        }
+
+        .password-wrapper input {
+            padding-right: 44px !important;
+        }
+
+        .password-toggle {
+            position: absolute;
+            right: 10px;
+            top: 50%;
+            transform: translateY(-50%);
+            background: none;
+            border: none;
+            cursor: pointer;
+            font-size: 16px;
+            padding: 4px;
+            color: var(--text-tertiary);
+            transition: color var(--transition-fast);
+        }
+
+        .password-toggle:hover {
+            color: var(--text-primary);
+        }
+
         .settings-form textarea {
             width: 100%;
             padding: 12px;
             border: 2px solid var(--border-color);
             border-radius: var(--radius-sm);
-            font-size: 14px;
-            font-family: 'Fira Code', monospace;
+            font-size: 13px;
+            font-family: 'Fira Code', 'Consolas', monospace;
             background: var(--bg-input);
             color: var(--text-primary);
             transition: all var(--transition);
             resize: vertical;
-            min-height: 120px;
+            min-height: 100px;
         }
 
         .settings-form textarea:focus {
@@ -735,13 +1106,11 @@
             cursor: pointer;
             user-select: none;
             outline: none;
-            transition: color var(--transition);
+            font-size: 0.9rem;
         }
 
-        details.advanced-settings summary:hover {
-            color: var(--primary);
-        }
-        
+        details.advanced-settings summary:hover { color: var(--primary); }
+
         details.advanced-settings .input-group {
             margin-top: 16px;
             margin-bottom: 0;
@@ -751,7 +1120,7 @@
             margin-top: 24px;
             display: flex;
             justify-content: flex-end;
-            gap: 12px;
+            gap: 10px;
         }
 
         .btn-secondary {
@@ -761,9 +1130,10 @@
             padding: 10px 20px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             transition: all var(--transition);
+            font-family: inherit;
         }
 
         .btn-secondary:hover {
@@ -778,25 +1148,27 @@
             padding: 10px 24px;
             border-radius: var(--radius-sm);
             cursor: pointer;
-            font-size: 15px;
+            font-size: 14px;
             font-weight: 600;
             transition: all var(--transition);
             box-shadow: 0 4px 14px rgba(16, 185, 129, 0.3);
+            font-family: inherit;
         }
-        
+
         .btn-save:hover {
             transform: translateY(-2px);
             box-shadow: 0 6px 20px rgba(16, 185, 129, 0.4);
-            filter: brightness(1.05);
         }
 
+        /* ====== Tutorial Modal ====== */
         .tutorial-section {
-            margin-bottom: 24px;
+            margin-bottom: 20px;
             padding-bottom: 16px;
             border-bottom: 1px solid var(--border-color);
         }
 
-        .tutorial-section:last-child {
+        .tutorial-section:last-child,
+        .tutorial-section-last {
             border-bottom: none;
         }
 
@@ -806,14 +1178,15 @@
             display: flex;
             align-items: center;
             gap: 8px;
-            font-size: 1.05rem;
+            font-size: 1rem;
         }
 
         .tutorial-section p,
         .tutorial-section li {
             line-height: 1.7;
             color: var(--text-secondary);
-            margin-bottom: 8px;
+            margin-bottom: 6px;
+            font-size: 0.92rem;
         }
 
         .code-block {
@@ -821,7 +1194,7 @@
             padding: 12px 16px;
             border-radius: var(--radius-sm);
             font-family: 'Fira Code', 'Consolas', monospace;
-            font-size: 0.88em;
+            font-size: 0.85em;
             color: var(--accent);
             display: block;
             margin: 8px 0;
@@ -831,212 +1204,151 @@
         }
 
         /* ====== Scrollbar ====== */
-        ::-webkit-scrollbar {
-            width: 6px;
-        }
-
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-
-        ::-webkit-scrollbar-thumb {
-            background: var(--text-tertiary);
-            border-radius: 3px;
-        }
-
-        ::-webkit-scrollbar-thumb:hover {
-            background: var(--text-secondary);
-        }
+        ::-webkit-scrollbar { width: 5px; }
+        ::-webkit-scrollbar-track { background: transparent; }
+        ::-webkit-scrollbar-thumb { background: var(--text-tertiary); border-radius: 3px; }
+        ::-webkit-scrollbar-thumb:hover { background: var(--text-secondary); }
 
         /* ====== Responsive ====== */
         @media (max-width: 640px) {
-            .container {
-                padding: 28px 20px;
+            body { padding: 16px 10px 40px; }
+
+            .app-header { padding: 20px 20px 18px; }
+            .main-content { padding: 24px 20px; }
+            .results-container { padding: 24px 20px; }
+            .progress-container.visible { padding-left: 20px; padding-right: 20px; }
+            .app-footer { padding: 14px 20px; }
+
+            .header-top {
+                flex-direction: column;
+                gap: 14px;
+                align-items: stretch;
             }
 
-            h1 {
-                font-size: 1.8rem;
+            .header-actions {
+                justify-content: center;
+                gap: 6px;
             }
 
-            .step-label {
-                font-size: 0.68rem;
+            .icon-btn {
+                padding: 6px 10px;
+                font-size: 11.5px;
             }
 
-            .step-circle {
-                width: 32px;
-                height: 32px;
-                font-size: 14px;
+            .hero h1 { font-size: 1.6rem; }
+
+            .step-label { font-size: 0.66rem; }
+            .step-circle { width: 30px; height: 30px; font-size: 13px; }
+
+            .modal-content {
+                margin: 0;
+                width: 100%;
+                height: 100%;
+                max-height: 100%;
+                border-radius: 0;
+                padding: 24px 20px;
             }
+
+            .result-body { padding: 16px; }
+            .result-meta { padding: 12px 16px; }
         }
 
-        .results-hidden {
-            display: none;
-        }
-
-        /* ====== Results History ====== */
-        .results-history-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 16px;
-        }
-
-        .results-history-title {
-            font-size: 1.1rem;
+        /* ====== Toast ====== */
+        .toast {
+            position: fixed;
+            bottom: 40px;
+            left: 50%;
+            transform: translateX(-50%) translateY(20px);
+            background: linear-gradient(135deg, var(--primary), var(--accent));
+            color: white;
+            padding: 12px 24px;
+            border-radius: 24px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            z-index: 3000;
+            font-size: 13px;
             font-weight: 700;
-            color: var(--text-primary);
-            display: flex;
-            align-items: center;
-            gap: 8px;
+            opacity: 0;
+            transition: opacity 0.3s ease, transform 0.3s ease;
+            pointer-events: none;
         }
 
-        .btn-clear-results {
-            background: var(--bg-input);
-            border: 1px solid var(--border-color);
-            color: var(--text-tertiary);
-            padding: 6px 14px;
-            font-size: 0.8rem;
-            font-weight: 600;
-            border-radius: 6px;
-            cursor: pointer;
-            transition: all var(--transition);
-            font-family: inherit;
-        }
-
-        .btn-clear-results:hover {
-            color: var(--error);
-            background: rgba(239, 68, 68, 0.1);
-            border-color: var(--error);
-        }
-
-        .result-entry {
-            background: var(--bg-card-inner);
-            border-radius: var(--radius-md);
-            padding: 24px;
-            margin-bottom: 20px;
-            border: 1px solid var(--border-color);
-            transition: background var(--transition), border-color var(--transition);
-            animation: fadeInUp 0.5s ease-out;
-        }
-
-        .result-meta {
-            display: flex;
-            flex-wrap: wrap;
-            align-items: center;
-            gap: 10px;
-            margin-bottom: 16px;
-            padding-bottom: 12px;
-            border-bottom: 1px dashed var(--border-color);
-        }
-
-        .result-meta-tag {
-            background: linear-gradient(135deg, var(--primary), #8b5cf6);
-            color: var(--text-on-primary);
-            padding: 4px 12px;
-            border-radius: 20px;
-            font-size: 0.78rem;
-            font-weight: 700;
-        }
-
-        .result-meta-time {
-            color: var(--text-tertiary);
-            font-size: 0.8rem;
-        }
-
-        .result-meta-instruction {
-            color: var(--text-secondary);
-            font-size: 0.82rem;
-            font-style: italic;
-            flex-basis: 100%;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-        }
-
-        .result-summary-section {
-            margin-bottom: 16px;
-        }
-
-        .result-summary-section .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .result-email-section .card-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            margin-bottom: 12px;
-            padding-bottom: 10px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .modal-heading {
-            margin-bottom: 20px;
-            padding-bottom: 12px;
-            border-bottom: 2px solid var(--border-color);
-        }
-
-        .tutorial-section-last {
-            border-bottom: none;
+        .toast.visible {
+            opacity: 1;
+            transform: translateX(-50%) translateY(0);
         }
     </style>
 </head>
 
 <body>
     <div class="container">
-        <!-- Top Bar -->
-        <div class="top-bar">
-            <!-- 改进四：刷新验证 Cookie 按钮 -->
-            <button class="icon-btn" id="cookieStatusBtn" onclick="checkCookieStatus()">
-                <span id="cookieIcon">🍪</span>
-                <span id="cookieLabel">刷新并验证 Cookie</span>
-            </button>
-            <a class="icon-btn" href="{{ mail_url }}" target="_blank" rel="noopener noreferrer">
-                <span>📬</span>
-                <span>打开邮箱</span>
-            </a>
-            <button class="icon-btn" id="themeToggle" onclick="toggleTheme()">
-                <span id="themeIcon">🌙</span> <span id="themeLabel">深色模式</span>
-            </button>
-            <button class="icon-btn" onclick="openSettingsModal()">⚙️ 设置/配置</button>
-            <button class="icon-btn" onclick="openModal()">📚 使用教程</button>
-        </div>
-        <div id="cookieStatusText" class="cookie-status-text">Cookie 状态：未检查</div>
-
-        <h1>✨ AI 邮件智能助手</h1>
-
-        <!-- Input -->
-        <div class="input-group">
-            <label for="keyword">🔍 搜索关键词</label>
-            <input type="text" id="keyword" placeholder="输入关键词搜索，或留空查看最新邮件...">
-        </div>
-
-        <div class="input-group">
-            <label for="instruction">💡 总结指令</label>
-            <input type="text" id="instruction" placeholder="告诉 AI 如何总结..." value="请用自然语气总结这10封邮件，重点关注活动、课程作业和重要事项。">
-        </div>
-
-        <button class="btn-primary" id="runBtn" onclick="runTask()">
-            <span>🚀 开始智能分析</span>
-        </button>
-
-        <!-- Search History (改进三) -->
-        <div class="history-section" id="historySection">
-            <div class="history-header">
-                <span class="history-title">🕐 搜索历史</span>
-                <button class="btn-clear-history" onclick="clearHistory()">清空历史</button>
+        <!-- Header -->
+        <div class="app-header">
+            <div class="header-top">
+                <div class="hero">
+                    <h1>AI 邮件智能助手</h1>
+                    <p class="hero-subtitle">自动搜索、提取与总结你的 XJTLU 邮件</p>
+                </div>
+                <div class="header-actions">
+                    <button class="icon-btn" id="cookieStatusBtn" onclick="checkCookieStatus()">
+                        <span id="cookieIcon">🍪</span>
+                        <span id="cookieLabel">验证 Cookie</span>
+                    </button>
+                    <a class="icon-btn" href="{{ mail_url }}" target="_blank" rel="noopener noreferrer">
+                        📬 邮箱
+                    </a>
+                    <button class="icon-btn" id="themeToggle" onclick="toggleTheme()">
+                        <span id="themeIcon">🌙</span> <span id="themeLabel">深色</span>
+                    </button>
+                    <button class="icon-btn" onclick="openSettingsModal()">⚙️ 配置</button>
+                    <button class="icon-btn" onclick="openModal()">📚 教程</button>
+                </div>
             </div>
-            <div class="history-list" id="historyList">
-                <span class="history-empty">暂无搜索记录</span>
+            <div style="text-align:center; margin-top: 4px;">
+                <span class="cookie-pill" id="cookiePill">未检查</span>
             </div>
         </div>
 
-        <!-- Progress Steps (改进一) -->
+        <!-- Main -->
+        <div class="main-content">
+            <div id="welcomeBanner"></div>
+
+            <div class="input-section">
+                <div class="input-group">
+                    <label for="keyword">搜索关键词</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">🔍</span>
+                        <input type="text" id="keyword" placeholder="输入关键词搜索，或留空查看最新邮件...">
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="instruction">总结指令</label>
+                    <div class="input-wrapper">
+                        <span class="input-icon">💡</span>
+                        <textarea id="instruction" rows="1" placeholder="告诉 AI 如何总结...">请用自然语气总结这10封邮件，重点关注活动、课程作业和重要事项。</textarea>
+                    </div>
+                    <div class="input-hint">按 Ctrl+Enter 快速提交</div>
+                </div>
+
+                <button class="btn-primary" id="runBtn" onclick="runTask()">
+                    <span class="spinner"></span>
+                    <span class="btn-label">开始智能分析</span>
+                </button>
+            </div>
+
+            <!-- Search History -->
+            <div class="history-section" id="historySection">
+                <div class="section-header">
+                    <span class="section-title">搜索历史</span>
+                    <button class="btn-text" onclick="clearHistory()">清空</button>
+                </div>
+                <div class="history-list" id="historyList">
+                    <span class="history-empty">暂无搜索记录</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Progress -->
         <div class="progress-container" id="progressContainer">
             <div class="progress-steps">
                 <div class="progress-bar-fill" id="progressBarFill"></div>
@@ -1057,16 +1369,21 @@
                     <span class="step-label">AI 总结</span>
                 </div>
             </div>
-            <p class="progress-detail" id="progressDetail">正在準备...</p>
+            <p class="progress-detail" id="progressDetail">正在准备...</p>
         </div>
 
-        <!-- Results History -->
+        <!-- Results -->
         <div id="resultsHistory" class="results-container results-hidden">
             <div class="results-history-header">
                 <div class="results-history-title">📋 查询结果</div>
-                <button class="btn-clear-results" onclick="clearAllResults()">🗑️ 清空全部</button>
+                <button class="btn-clear-results" onclick="clearAllResults()">清空全部</button>
             </div>
             <div id="resultsEntries"></div>
+        </div>
+
+        <!-- Footer -->
+        <div class="app-footer">
+            XJTLU Mail Assistant &middot; Powered by Playwright + LLM
         </div>
     </div>
 
@@ -1074,46 +1391,35 @@
     <div id="tutorialModal" class="modal">
         <div class="modal-content">
             <span class="close" onclick="closeModal()">&times;</span>
-            <h2 class="modal-heading">📚
-                使用教程与设置指南</h2>
+            <h2 class="modal-heading">📚 使用教程</h2>
 
             <div class="tutorial-section">
-                <h3>🔑 1. 配置 API 和 URL</h3>
-                <p>要使用 AI 总结功能，您需要配置 AI 服务商的 API Key。</p>
-                <ol>
-                    <li>在程序根目录下找到 <strong>src</strong> 文件夹。</li>
-                    <li>打开 <strong>src/config.json</strong> 文件（推荐使用 VS Code 或记事本）。</li>
-                    <li>找到 <code>"ai"</code> 部分，修改以下字段：</li>
-                </ol>
-                <code class="code-block">
-"ai": {
-  "base_url": "您的 API 地址 (例如 https://api.openai.com/v1)",
-  "api_key": "您的 sk-开头的密钥",
+                <h3>🔑 1. 配置 API</h3>
+                <p>点击页面顶部的 <strong>⚙️ 配置</strong> 按钮，填入 AI 服务商的 Base URL、API Key 和模型名称即可。</p>
+                <code class="code-block">"ai": {
+  "base_url": "https://api.openai.com/v1",
+  "api_key": "sk-...",
   "model": "gpt-4o-mini"
-}
-                </code>
+}</code>
             </div>
 
             <div class="tutorial-section">
-                <h3>🍪 2. 获取并配置 Cookie</h3>
-                <p>为了让程序能够访问您的学校邮箱，需要提供登录后的 Cookie。</p>
+                <h3>🍪 2. 获取 Cookie</h3>
                 <ol>
-                    <li>在 Chrome 或 Edge 浏览器中安装 <strong>Cookie-Editor</strong> 插件。</li>
-                    <li>登录您的学校邮箱 (<a href="https://mail.xjtlu.edu.cn/owa" target="_blank"
-                            rel="noopener">mail.xjtlu.edu.cn</a>)。</li>
-                    <li>点击浏览器右上角的 Cookie-Editor 图标。</li>
-                    <li>点击右下角的 <strong>Export</strong> 按钮，选择 <strong>Export as JSON</strong>。</li>
-                    <li>打开 <strong>src/config.json</strong>，把导出的 JSON 粘贴到 <code>"cookies"</code> 字段中。</li>
+                    <li>在 Chrome/Edge 中安装 <strong>Cookie-Editor</strong> 插件</li>
+                    <li>登录 <a href="https://mail.xjtlu.edu.cn/owa" target="_blank" rel="noopener">mail.xjtlu.edu.cn</a></li>
+                    <li>点击 Cookie-Editor → <strong>Export as JSON</strong></li>
+                    <li>在 <strong>⚙️ 配置</strong> 中粘贴到 Cookie 字段</li>
                 </ol>
-                <p><strong>注意：</strong>Cookie 会定期失效，如果程序无法登录，请重复此步骤更新。</p>
+                <p><strong>提示：</strong>Cookie 会定期失效，届时重新导出即可。</p>
             </div>
 
             <div class="tutorial-section tutorial-section-last">
-                <h3>📂 3. 文件结构说明</h3>
+                <h3>📂 3. 文件说明</h3>
                 <ul>
-                    <li><strong>run_app.bat</strong>: 唯一的启动入口，双击即可运行。</li>
-                    <li><strong>src/config.json</strong>: 配置文件，在此修改 API 和 Cookie。</li>
-                    <li><strong>src/app.py</strong>: 核心服务程序。</li>
+                    <li><strong>run_app.bat</strong> — 双击启动</li>
+                    <li><strong>src/config.json</strong> — 配置文件</li>
+                    <li><strong>src/app.py</strong> — 核心服务</li>
                 </ul>
             </div>
         </div>
@@ -1121,39 +1427,42 @@
 
     <!-- Settings Modal -->
     <div id="settingsModal" class="modal">
-        <div class="modal-content" style="max-width: 600px;">
+        <div class="modal-content" style="max-width: 560px;">
             <span class="close" onclick="closeSettingsModal()">&times;</span>
             <h2 class="modal-heading">⚙️ 系统配置</h2>
-            
+
             <div class="settings-form">
                 <div class="input-group">
                     <label for="aiBaseUrl">AI Base URL</label>
-                    <input type="text" id="aiBaseUrl" placeholder="如: https://api.openai.com/v1">
-                </div>
-                
-                <div class="input-group">
-                    <label for="aiApiKey">AI API Key</label>
-                    <input type="text" id="aiApiKey" placeholder="sk-...">
-                </div>
-                
-                <div class="input-group">
-                    <label for="aiModel">AI Model</label>
-                    <input type="text" id="aiModel" placeholder="如: gpt-4o-mini">
+                    <input type="text" id="aiBaseUrl" placeholder="https://api.openai.com/v1">
                 </div>
 
                 <div class="input-group">
-                    <label for="emailCookies">Email Cookies (JSON Array)</label>
+                    <label for="aiApiKey">AI API Key</label>
+                    <div class="password-wrapper">
+                        <input type="password" id="aiApiKey" placeholder="sk-...">
+                        <button class="password-toggle" type="button" onclick="toggleApiKeyVisibility()" title="显示/隐藏">👁</button>
+                    </div>
+                </div>
+
+                <div class="input-group">
+                    <label for="aiModel">AI Model</label>
+                    <input type="text" id="aiModel" placeholder="gpt-4o-mini">
+                </div>
+
+                <div class="input-group">
+                    <label for="emailCookies">Cookies (JSON Array)</label>
                     <textarea id="emailCookies" placeholder='[{"name": "...", "value": "...", "domain": "..."}]'></textarea>
                 </div>
 
                 <details class="advanced-settings">
                     <summary>高级设置</summary>
                     <div class="input-group">
-                        <label for="emailUrl">邮箱网址 URL</label>
-                        <input type="text" id="emailUrl" placeholder="如: https://mail.xjtlu.edu.cn/owa">
+                        <label for="emailUrl">邮箱 URL</label>
+                        <input type="text" id="emailUrl" placeholder="https://mail.xjtlu.edu.cn/owa">
                     </div>
                 </details>
-                
+
                 <div class="modal-footer">
                     <button class="btn-secondary" onclick="closeSettingsModal()">取消</button>
                     <button class="btn-save" id="saveConfigBtn" onclick="saveConfig()">保存配置</button>
@@ -1162,12 +1471,14 @@
         </div>
     </div>
 
+    <!-- Toast Container -->
+    <div class="toast" id="globalToast"></div>
+
     <script>
-        // ====== 深色模式 (改进一) ======
+        // ====== Theme ======
         function initTheme() {
             const saved = localStorage.getItem('theme');
-            const theme = saved || 'light';
-            applyTheme(theme);
+            applyTheme(saved || (window.matchMedia('(prefers-color-scheme: dark)').matches ? 'dark' : 'light'));
         }
 
         function toggleTheme() {
@@ -1180,16 +1491,50 @@
         function applyTheme(theme) {
             document.documentElement.setAttribute('data-theme', theme);
             document.getElementById('themeIcon').textContent = theme === 'dark' ? '☀️' : '🌙';
-            document.getElementById('themeLabel').textContent = theme === 'dark' ? '浅色模式' : '深色模式';
+            document.getElementById('themeLabel').textContent = theme === 'dark' ? '浅色' : '深色';
         }
 
         initTheme();
 
+        // ====== Welcome Banner (replaces alert) ======
+        (function showWelcomeBanner() {
+            const container = document.getElementById('welcomeBanner');
+            const lastTime = localStorage.getItem('last_email_process_time');
+
+            if (!lastTime) {
+                container.innerHTML = `
+                    <div class="welcome-banner info">
+                        👋 欢迎使用 AI 邮件助手！输入关键词或直接点击分析，开始体验吧。
+                        <button class="banner-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>`;
+                return;
+            }
+
+            const last = new Date(lastTime);
+            const diffMs = Date.now() - last.getTime();
+            const diffMin = Math.floor(diffMs / 60000);
+            const diffHour = Math.floor(diffMs / 3600000);
+            const diffDay = Math.floor(diffMs / 86400000);
+
+            let timeStr = '';
+            if (diffDay > 0) timeStr = `${diffDay} 天`;
+            else if (diffHour > 0) timeStr = `${diffHour} 小时`;
+            else timeStr = `${diffMin} 分钟`;
+
+            if (diffHour >= 6) {
+                container.innerHTML = `
+                    <div class="welcome-banner reminder">
+                        📬 已有 ${timeStr} 未处理邮件，上次：${last.toLocaleString('zh-CN')}
+                        <button class="banner-close" onclick="this.parentElement.remove()">&times;</button>
+                    </div>`;
+            }
+        })();
+
         // ====== Modal ======
         function openModal() { document.getElementById('tutorialModal').style.display = "block"; }
         function closeModal() { document.getElementById('tutorialModal').style.display = "none"; }
-        
-        async function openSettingsModal() { 
+
+        async function openSettingsModal() {
             document.getElementById('settingsModal').style.display = "block";
             const btn = document.getElementById('saveConfigBtn');
             btn.textContent = "加载中...";
@@ -1203,19 +1548,32 @@
                 document.getElementById('emailUrl').value = conf.email_url || 'https://mail.xjtlu.edu.cn/owa';
                 document.getElementById('emailCookies').value = conf.email_cookies || '';
             } catch (e) {
-                alert("无法加载配置: " + e.message);
+                showToast('无法加载配置: ' + e.message);
             } finally {
                 btn.textContent = "保存配置";
                 btn.disabled = false;
             }
         }
+
         function closeSettingsModal() { document.getElementById('settingsModal').style.display = "none"; }
+
+        function toggleApiKeyVisibility() {
+            const input = document.getElementById('aiApiKey');
+            const btn = input.nextElementSibling;
+            if (input.type === 'password') {
+                input.type = 'text';
+                btn.textContent = '🙈';
+            } else {
+                input.type = 'password';
+                btn.textContent = '👁';
+            }
+        }
 
         async function saveConfig() {
             const btn = document.getElementById('saveConfigBtn');
             btn.textContent = "保存中...";
             btn.disabled = true;
-            
+
             const payload = {
                 ai_base_url: document.getElementById('aiBaseUrl').value,
                 ai_api_key: document.getElementById('aiApiKey').value,
@@ -1223,7 +1581,7 @@
                 email_url: document.getElementById('emailUrl').value,
                 email_cookies: document.getElementById('emailCookies').value
             };
-            
+
             try {
                 const res = await fetch('/api/config', {
                     method: 'POST',
@@ -1231,14 +1589,14 @@
                     body: JSON.stringify(payload)
                 });
                 const data = await res.json();
-                if(data.status === 'success') {
-                    alert('✅ 配置保存成功！');
+                if (data.status === 'success') {
+                    showToast('配置已保存');
                     closeSettingsModal();
                 } else {
-                    alert('❌ 保存失败: ' + data.message);
+                    showToast('保存失败: ' + data.message);
                 }
             } catch (e) {
-                alert('❌ 发生错误: ' + e.message);
+                showToast('发生错误: ' + e.message);
             } finally {
                 btn.textContent = "保存配置";
                 btn.disabled = false;
@@ -1250,29 +1608,35 @@
             if (event.target === document.getElementById('settingsModal')) closeSettingsModal();
         };
 
-        // ====== 搜索历史 (改进三) ======
+        // ====== Keyboard Shortcut ======
+        document.addEventListener('keydown', function (e) {
+            if ((e.ctrlKey || e.metaKey) && e.key === 'Enter') {
+                const runBtn = document.getElementById('runBtn');
+                if (!runBtn.disabled) runTask();
+            }
+            if (e.key === 'Escape') {
+                closeModal();
+                closeSettingsModal();
+            }
+        });
+
+        // ====== Search History ======
         const HISTORY_KEY = 'email_search_history';
         const MAX_HISTORY = 10;
 
         function loadHistory() {
-            try {
-                return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]');
-            } catch { return []; }
+            try { return JSON.parse(localStorage.getItem(HISTORY_KEY) || '[]'); }
+            catch { return []; }
         }
 
         function saveToHistory(keyword, instruction) {
             const history = loadHistory();
-            // 避免重复
             const exists = history.findIndex(h => h.keyword === keyword && h.instruction === instruction);
             if (exists !== -1) history.splice(exists, 1);
-
             history.unshift({
-                keyword,
-                instruction,
+                keyword, instruction,
                 time: new Date().toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' })
             });
-
-            // 限制最多 10 条
             if (history.length > MAX_HISTORY) history.pop();
             localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
             renderHistory();
@@ -1287,7 +1651,7 @@
             }
             container.innerHTML = history.map((h, i) =>
                 `<div class="history-chip" onclick="fillFromHistory(${i})" title="${h.keyword} — ${h.instruction}">
-                    <span class="chip-keyword">${h.keyword}</span>
+                    <span class="chip-keyword">${h.keyword || '最新'}</span>
                     <span class="chip-time">${h.time}</span>
                 </div>`
             ).join('');
@@ -1298,6 +1662,7 @@
             if (history[index]) {
                 document.getElementById('keyword').value = history[index].keyword;
                 document.getElementById('instruction').value = history[index].instruction;
+                document.getElementById('keyword').focus();
             }
         }
 
@@ -1308,37 +1673,17 @@
 
         renderHistory();
 
-        // ====== 启动提醒：距上次处理邮件的时间 ======
-        (function showLastProcessReminder() {
-            const lastTime = localStorage.getItem('last_email_process_time');
-            if (!lastTime) {
-                alert('👋 欢迎使用 AI 邮件助手！\n\n您还没有处理过邮件，快来试试吧！');
-                return;
-            }
-            const last = new Date(lastTime);
-            const now = new Date();
-            const diffMs = now - last;
-            const diffMin = Math.floor(diffMs / 60000);
-            const diffHour = Math.floor(diffMs / 3600000);
-            const diffDay = Math.floor(diffMs / 86400000);
-
-            let timeStr = '';
-            if (diffDay > 0) {
-                const remainHour = Math.floor((diffMs % 86400000) / 3600000);
-                timeStr = `${diffDay} 天 ${remainHour} 小时`;
-            } else if (diffHour > 0) {
-                const remainMin = Math.floor((diffMs % 3600000) / 60000);
-                timeStr = `${diffHour} 小时 ${remainMin} 分钟`;
-            } else {
-                timeStr = `${diffMin} 分钟`;
-            }
-
-            alert(`📬 您已经 ${timeStr} 没有处理过邮件了！\n\n上次处理时间：${last.toLocaleString('zh-CN')}`);
-        })();
-
-        // ====== 进度条 (改进一 + 改进二) ======
+        // ====== Progress ======
         const STAGES = ['connecting', 'searching', 'extracting', 'summarizing'];
         let statusPollInterval = null;
+
+        function showProgress() {
+            document.getElementById('progressContainer').classList.add('visible');
+        }
+
+        function hideProgress() {
+            document.getElementById('progressContainer').classList.remove('visible');
+        }
 
         function setProgressStage(stage, detail) {
             const idx = STAGES.indexOf(stage);
@@ -1348,14 +1693,10 @@
                 if (i < idx) el.classList.add('completed');
                 else if (i === idx) el.classList.add('active');
             });
-
-            // Progress bar fill
             const fill = document.getElementById('progressBarFill');
-            // Track spans from left:16% to right:16%, so total track width = 68%
-            const trackWidth = 68; // percentage of container
+            const trackWidth = 68;
             const percent = idx >= 0 ? (idx / (STAGES.length - 1)) * trackWidth : 0;
             fill.style.width = percent + '%';
-
             document.getElementById('progressDetail').textContent = detail || '';
         }
 
@@ -1367,7 +1708,7 @@
                     if (data.stage && data.stage !== 'idle' && data.stage !== 'done') {
                         setProgressStage(data.stage, data.detail);
                     }
-                } catch (e) { /* ignore */ }
+                } catch (e) { }
             }, 1500);
         }
 
@@ -1378,9 +1719,8 @@
             }
         }
 
-        // ====== 打字机效果 (改进一) ======
+        // ====== Typewriter ======
         function typewriterEffect(element, html, callback) {
-            // Parse HTML to plain text for typing, then show full HTML at end
             const tempDiv = document.createElement('div');
             tempDiv.innerHTML = html;
             const plainText = tempDiv.textContent || tempDiv.innerText || '';
@@ -1390,18 +1730,16 @@
             cursor.className = 'typewriter-cursor';
 
             let i = 0;
-            const chunkSize = 3; // characters per tick for speed
-            const delay = 15; // ms per tick
+            const chunkSize = 3;
+            const delay = 15;
 
             function type() {
                 if (i < plainText.length) {
-                    const chunk = plainText.substring(i, i + chunkSize);
-                    element.textContent += chunk;
+                    element.textContent += plainText.substring(i, i + chunkSize);
                     element.appendChild(cursor);
                     i += chunkSize;
                     setTimeout(type, delay);
                 } else {
-                    // Typing done — show full formatted HTML
                     cursor.remove();
                     element.innerHTML = html;
                     if (callback) callback();
@@ -1410,7 +1748,7 @@
             type();
         }
 
-        // ====== 复制总结（每条独立） ======
+        // ====== Copy ======
         function copySummaryEntry(btnEl, text) {
             if (!text) return;
             navigator.clipboard.writeText(text).then(() => {
@@ -1418,24 +1756,23 @@
                 const label = btnEl.querySelector('.copy-label');
                 btnEl.classList.add('copied');
                 icon.textContent = '✅';
-                label.textContent = '已复制!';
+                label.textContent = '已复制';
                 setTimeout(() => {
                     btnEl.classList.remove('copied');
                     icon.textContent = '📋';
-                    label.textContent = '复制总结';
+                    label.textContent = '复制';
                 }, 2000);
             });
         }
 
-        // ====== 查询结果持久化 ======
+        // ====== Results Storage ======
         const RESULTS_KEY = 'email_query_results';
         const MAX_RESULTS = 20;
         let resultCounter = 0;
 
         function loadResultsFromStorage() {
-            try {
-                return JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]');
-            } catch { return []; }
+            try { return JSON.parse(localStorage.getItem(RESULTS_KEY) || '[]'); }
+            catch { return []; }
         }
 
         function saveResultToStorage(record) {
@@ -1445,17 +1782,18 @@
             localStorage.setItem(RESULTS_KEY, JSON.stringify(results));
         }
 
-        // ====== 渲染单条结果卡片（共享函数） ======
+        // ====== Render Result Entry ======
         function renderResultEntry(record, useTypewriter) {
             resultCounter++;
             const entryId = 'result-entry-' + resultCounter;
             const summaryId = 'summary-' + resultCounter;
+            const emailListId = 'email-list-' + resultCounter;
+            const toggleId = 'email-toggle-' + resultCounter;
 
             const entry = document.createElement('div');
             entry.className = 'result-entry';
             entry.id = entryId;
 
-            // -- Meta row --
             let metaHTML = `<div class="result-meta">`;
             metaHTML += `<span class="result-meta-tag">${record.keyword || '最新邮件'}</span>`;
             metaHTML += `<span class="result-meta-time">🕐 ${record.time}</span>`;
@@ -1464,43 +1802,48 @@
             }
             metaHTML += `</div>`;
 
-            // -- Summary section --
-            let summaryHTML = `<div class="result-summary-section">`;
-            summaryHTML += `<div class="card-header">`;
-            summaryHTML += `  <div class="card-title">📝 智能总结</div>`;
-            summaryHTML += `  <button class="btn-copy" onclick="copySummaryEntry(this, document.getElementById('${summaryId}')._rawText)">`;
-            summaryHTML += `    <span class="copy-icon">📋</span> <span class="copy-label">复制总结</span>`;
-            summaryHTML += `  </button>`;
-            summaryHTML += `</div>`;
-            summaryHTML += `<div id="${summaryId}"></div>`;
-            summaryHTML += `</div>`;
+            let bodyHTML = `<div class="result-body">`;
 
-            // -- Email list section --
-            let emailHTML = `<div class="result-email-section">`;
-            emailHTML += `<div class="card-header">`;
-            emailHTML += `  <div class="card-title">📬 原始邮件列表 `;
+            bodyHTML += `<div class="result-summary-section">`;
+            bodyHTML += `<div class="card-header">`;
+            bodyHTML += `  <div class="card-title">📝 智能总结</div>`;
+            bodyHTML += `  <button class="btn-copy" onclick="copySummaryEntry(this, document.getElementById('${summaryId}')._rawText)">`;
+            bodyHTML += `    <span class="copy-icon">📋</span> <span class="copy-label">复制</span>`;
+            bodyHTML += `  </button>`;
+            bodyHTML += `</div>`;
+            bodyHTML += `<div id="${summaryId}" class="summary-content"></div>`;
+            bodyHTML += `</div>`;
+
             const emailCount = (record.emails && record.emails.length) || 0;
-            emailHTML += `    <span class="status-badge status-success">${emailCount} 封</span>`;
-            emailHTML += `  </div>`;
-            emailHTML += `</div>`;
-            emailHTML += `<div class="email-list">`;
+            bodyHTML += `<div class="result-email-section">`;
+            bodyHTML += `<div class="card-header email-toggle" id="${toggleId}" onclick="toggleEmailList('${emailListId}', '${toggleId}')">`;
+            bodyHTML += `  <div class="card-title">📬 邮件列表 <span class="status-badge status-success">${emailCount} 封</span></div>`;
+            bodyHTML += `  <span class="toggle-arrow">▼</span>`;
+            bodyHTML += `</div>`;
+            bodyHTML += `<div class="email-list-wrapper collapsed" id="${emailListId}">`;
+            bodyHTML += `<div class="email-list">`;
             if (record.emails && record.emails.length > 0) {
-                record.emails.forEach(email => {
-                    emailHTML += `<div class="email-item">`;
-                    emailHTML += `  <div class="email-subject">${email.subject}</div>`;
-                    emailHTML += `  <div class="email-date">📅 ${email.date}</div>`;
-                    emailHTML += `</div>`;
+                record.emails.forEach((email, idx) => {
+                    bodyHTML += `<div class="email-item">`;
+                    bodyHTML += `  <div class="email-item-num">${idx + 1}</div>`;
+                    bodyHTML += `  <div class="email-item-content">`;
+                    bodyHTML += `    <div class="email-subject" title="${email.subject}">${email.subject}</div>`;
+                    bodyHTML += `    <div class="email-date">${email.date}</div>`;
+                    bodyHTML += `  </div>`;
+                    bodyHTML += `</div>`;
                 });
             } else {
-                emailHTML += '<div style="padding:15px;text-align:center;color:var(--text-tertiary)">未找到相关邮件</div>';
+                bodyHTML += '<div style="padding:15px;text-align:center;color:var(--text-tertiary)">未找到相关邮件</div>';
             }
-            emailHTML += `</div></div>`;
+            bodyHTML += `</div></div>`;
+            bodyHTML += `</div>`;
 
-            entry.innerHTML = metaHTML + summaryHTML + emailHTML;
+            bodyHTML += `</div>`;
 
-            // Attach raw text and render summary
+            entry.innerHTML = metaHTML + bodyHTML;
+
             const container = document.getElementById('resultsEntries');
-            container.appendChild(entry); // 先加入 DOM，再操作子元素
+            container.appendChild(entry);
 
             const summaryEl = document.getElementById(summaryId);
             summaryEl._rawText = record.summary || '';
@@ -1515,22 +1858,23 @@
             return entry;
         }
 
-        // ====== 页面加载时恢复历史结果 ======
+        function toggleEmailList(listId, toggleId) {
+            const list = document.getElementById(listId);
+            const toggle = document.getElementById(toggleId);
+            list.classList.toggle('collapsed');
+            toggle.classList.toggle('collapsed');
+        }
+
+        // ====== Restore Results ======
         function restoreResults() {
             const results = loadResultsFromStorage();
             if (results.length === 0) return;
 
-            const resultsHistory = document.getElementById('resultsHistory');
-            resultsHistory.classList.remove('results-hidden');
+            document.getElementById('resultsHistory').classList.remove('results-hidden');
 
-            // 按时间正序渲染（旧的先 append），最后最新的在最上面
-            // 存储时 results[0] = 最新，需要反转后 append
             const reversed = [...results].reverse();
-            reversed.forEach(record => {
-                renderResultEntry(record, false);
-            });
+            reversed.forEach(record => renderResultEntry(record, false));
 
-            // 再反转 DOM 顺序，让最新的在顶部
             const container = document.getElementById('resultsEntries');
             const children = Array.from(container.children);
             children.reverse().forEach(child => container.appendChild(child));
@@ -1538,35 +1882,31 @@
 
         restoreResults();
 
-        // ====== 清空所有历史结果 ======
         function clearAllResults() {
             localStorage.removeItem(RESULTS_KEY);
             document.getElementById('resultsEntries').innerHTML = '';
             document.getElementById('resultsHistory').classList.add('results-hidden');
         }
 
-        // ====== Main Task Runner ======
+        // ====== Main Task ======
         async function runTask() {
             const keyword = document.getElementById('keyword').value.trim();
             const instruction = document.getElementById('instruction').value.trim();
             const runBtn = document.getElementById('runBtn');
-            const progressContainer = document.getElementById('progressContainer');
             const resultsHistory = document.getElementById('resultsHistory');
 
-            // Reset UI
             runBtn.disabled = true;
-            runBtn.innerHTML = '<span>⏳ 处理中...</span>';
-            progressContainer.style.display = 'block';
+            runBtn.classList.add('loading');
+            runBtn.querySelector('.btn-label').textContent = '处理中...';
+            showProgress();
             setProgressStage('connecting', '正在连接邮箱服务器...');
-
-            // Start polling backend status
             startStatusPolling();
 
             try {
                 const response = await fetch('/api/execute', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({ keyword: keyword, instruction })
+                    body: JSON.stringify({ keyword, instruction })
                 });
 
                 const data = await response.json();
@@ -1576,70 +1916,59 @@
                     setProgressStage('searching', '');
                     document.getElementById('progressDetail').textContent = '⚠️ Cookie 已过期';
                     document.getElementById('progressDetail').style.animation = 'none';
-                    alert('⚠️ 无法定位搜索框，可能是 Cookie 已过期。\n\n请按以下步骤更新：\n1. 在浏览器中重新登录学校邮箱\n2. 用 Cookie-Editor 导出新的 Cookie\n3. 粘贴到 src/config.json 的 cookies 字段中\n4. 重启程序后重试');
+                    showToast('Cookie 已过期，请在配置中更新');
                 } else if (data.status === 'success') {
-                    // Mark all steps completed
                     STAGES.forEach(s => {
                         const el = document.getElementById('step-' + s);
                         el.classList.remove('active');
                         el.classList.add('completed');
                     });
                     document.getElementById('progressBarFill').style.width = '100%';
-                    document.getElementById('progressDetail').textContent = '✅ 分析完成!';
+                    document.getElementById('progressDetail').textContent = '✅ 分析完成';
+                    document.getElementById('progressDetail').style.animation = 'none';
 
-                    // Save to search history
                     saveToHistory(keyword || '(最新邮件)', instruction);
                     localStorage.setItem('last_email_process_time', new Date().toISOString());
 
-                    // ====== Build result record ======
                     const now = new Date().toLocaleString('zh-CN', { month: 'short', day: 'numeric', hour: '2-digit', minute: '2-digit' });
                     const record = {
                         keyword: keyword || '',
-                        instruction: instruction,
+                        instruction,
                         summary: data.summary || '',
                         emails: data.emails || [],
                         time: now,
                     };
 
-                    // Persist to localStorage
                     saveResultToStorage(record);
-
-                    // Render with typewriter effect & prepend
                     resultsHistory.classList.remove('results-hidden');
                     const entry = renderResultEntry(record, true);
+                    document.getElementById('resultsEntries').prepend(entry);
 
-                    // Move to top (renderResultEntry appends, we want prepend for new)
-                    const container = document.getElementById('resultsEntries');
-                    container.prepend(entry);
-
-                    // Hide progress after a short delay
-                    setTimeout(() => {
-                        progressContainer.style.display = 'none';
-                    }, 1500);
-
-                    entry.scrollIntoView({ behavior: 'smooth' });
+                    setTimeout(() => hideProgress(), 1800);
+                    setTimeout(() => entry.scrollIntoView({ behavior: 'smooth', block: 'start' }), 300);
                 } else {
                     setProgressStage('connecting', '❌ ' + (data.message || '执行失败'));
                     document.getElementById('progressDetail').style.animation = 'none';
-                    alert('执行失败: ' + (data.message || 'Unknown error'));
+                    showToast('执行失败: ' + (data.message || '未知错误'));
                 }
             } catch (e) {
                 stopStatusPolling();
-                setProgressStage('connecting', '❌ 网络请求错误');
+                setProgressStage('connecting', '❌ 网络错误');
                 document.getElementById('progressDetail').style.animation = 'none';
-                alert('请求错误: ' + e.message);
+                showToast('请求错误: ' + e.message);
             } finally {
                 runBtn.disabled = false;
-                runBtn.innerHTML = '<span>🚀 开始智能分析</span>';
+                runBtn.classList.remove('loading');
+                runBtn.querySelector('.btn-label').textContent = '开始智能分析';
             }
         }
 
-        // ====== 验证/刷新 Cookie (改进四) ======
-        function setCookieStatusText(text, mode = '') {
-            const el = document.getElementById('cookieStatusText');
-            el.classList.remove('ok', 'bad', 'warn');
-            if (mode) el.classList.add(mode);
-            el.textContent = text;
+        // ====== Cookie Check ======
+        function setCookiePill(text, mode) {
+            const pill = document.getElementById('cookiePill');
+            pill.classList.remove('ok', 'bad', 'warn');
+            if (mode) pill.classList.add(mode);
+            pill.textContent = text;
         }
 
         async function checkCookieStatus() {
@@ -1647,63 +1976,118 @@
             const icon = document.getElementById('cookieIcon');
             const label = document.getElementById('cookieLabel');
 
-            // 改变状态为检查中
             btn.disabled = true;
             icon.textContent = '⏳';
             label.textContent = '检查中...';
-            setCookieStatusText('Cookie 状态：检查中...', 'warn');
+            setCookiePill('检查中...', 'warn');
 
             try {
                 const response = await fetch('/api/check_cookie', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' }
                 });
-
                 const data = await response.json();
 
                 if (data.status === 'valid') {
-                    // 成功
                     icon.textContent = '✅';
-                    label.textContent = 'Cookie 有效';
-                    btn.style.color = 'var(--success)';
-                    btn.style.borderColor = 'var(--success)';
-                    setCookieStatusText('Cookie 状态：有效，可正常访问邮箱。', 'ok');
-                    alert('🎉 验证成功：\n' + data.message);
+                    label.textContent = '有效';
+                    setCookiePill('Cookie 有效', 'ok');
+                    showToast('Cookie 验证通过');
                 } else if (data.status === 'invalid') {
-                    // 失效
                     icon.textContent = '❌';
-                    label.textContent = 'Cookie 失效';
-                    btn.style.color = 'var(--error)';
-                    btn.style.borderColor = 'var(--error)';
-                    setCookieStatusText('Cookie 状态：失效，请更新 Cookie。', 'bad');
-                    alert('⚠️ 验证失败：\n' + data.message + '\n\n请使用 Cookie-Editor 更新 config.json 中的内容。');
+                    label.textContent = '失效';
+                    setCookiePill('Cookie 已失效', 'bad');
+                    showToast('Cookie 已过期，请更新');
                 } else {
-                    // 警告或错误
                     icon.textContent = '⚠️';
-                    label.textContent = 'Cookie 异常';
-                    btn.style.color = 'var(--warning)';
-                    btn.style.borderColor = 'var(--warning)';
-                    setCookieStatusText('Cookie 状态：异常，建议重新检查配置。', 'warn');
-                    alert('🤔 状态异常：\n' + (data.message || '未知错误'));
+                    label.textContent = '异常';
+                    setCookiePill('状态异常', 'warn');
+                    showToast(data.message || '状态异常');
                 }
             } catch (e) {
                 icon.textContent = '❌';
-                label.textContent = '检查失败';
-                btn.style.color = 'var(--error)';
-                btn.style.borderColor = 'var(--error)';
-                setCookieStatusText('Cookie 状态：请求失败，请检查服务是否运行。', 'bad');
-                alert('请求错误: ' + e.message);
+                label.textContent = '失败';
+                setCookiePill('检查失败', 'bad');
+                showToast('请求错误: ' + e.message);
             } finally {
                 btn.disabled = false;
-
-                // 3秒后恢复默认样式
                 setTimeout(() => {
                     icon.textContent = '🍪';
-                    label.textContent = '刷新并验证 Cookie';
-                    btn.style.color = 'var(--text-secondary)';
-                    btn.style.borderColor = 'var(--border-color)';
-                }, 3000);
+                    label.textContent = '验证 Cookie';
+                }, 4000);
             }
+        }
+
+        // ====== Cookie Auto-Convert ======
+        function parseCookieString(text) {
+            text = text.trim();
+            if (text.startsWith('[') && text.endsWith(']')) {
+                try { return JSON.parse(text); } catch (e) { }
+            }
+            if (text.includes('\t')) {
+                const lines = text.split('\n');
+                const cookies = [];
+                for (let line of lines) {
+                    line = line.trim();
+                    if (!line || line.startsWith('#')) continue;
+                    const parts = line.split('\t');
+                    if (parts.length >= 7) {
+                        cookies.push({
+                            domain: parts[0], path: parts[2],
+                            secure: parts[3] === 'TRUE',
+                            expirationDate: parseInt(parts[4]) || 0,
+                            name: parts[5], value: parts[6]
+                        });
+                    }
+                }
+                if (cookies.length > 0) return cookies;
+            }
+            if (text.includes('=') && (text.includes(';') || !text.includes('\n'))) {
+                const cookies = [];
+                for (let pair of text.split(';')) {
+                    const idx = pair.indexOf('=');
+                    if (idx > 0) {
+                        const name = pair.substring(0, idx).trim();
+                        const value = pair.substring(idx + 1).trim();
+                        if (name && value) {
+                            cookies.push({ name, value, domain: "mail.xjtlu.edu.cn", path: "/" });
+                        }
+                    }
+                }
+                if (cookies.length > 0) return cookies;
+            }
+            return null;
+        }
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const cookieTextarea = document.getElementById('emailCookies');
+            if (!cookieTextarea) return;
+
+            function autoConvert(val, source) {
+                const parsed = parseCookieString(val);
+                if (parsed && typeof parsed === 'object') {
+                    const jsonStr = JSON.stringify(parsed, null, 2);
+                    if (jsonStr !== val.trim()) {
+                        cookieTextarea.value = jsonStr;
+                        showToast('已自动转换为 JSON 格式');
+                    }
+                }
+            }
+
+            cookieTextarea.addEventListener('input', e => autoConvert(e.target.value, 'input'));
+            cookieTextarea.addEventListener('paste', e => {
+                setTimeout(() => autoConvert(e.target.value, 'paste'), 10);
+            });
+        });
+
+        // ====== Toast ======
+        let toastTimer = null;
+        function showToast(message) {
+            const toast = document.getElementById('globalToast');
+            toast.textContent = message;
+            toast.classList.add('visible');
+            clearTimeout(toastTimer);
+            toastTimer = setTimeout(() => toast.classList.remove('visible'), 3000);
         }
     </script>
 </body>
