@@ -486,9 +486,13 @@ async def _prepare_owa_mail_list_frame(page, keyword: str, config: dict = None):
         base_url = (config or {}).get("email", {}).get("url", "").rstrip("/")
         if "#" in base_url:
             base_url = base_url.split("#")[0].rstrip("/")
-        await page.goto(f"{base_url}/#path=/mail/search", wait_until="domcontentloaded", timeout=30000)
+        search_url = f"{base_url}/#path=/mail/search"
+        await page.goto(search_url, wait_until="domcontentloaded", timeout=30000)
         await page.wait_for_timeout(2000)
-        print("已跳转到搜索页面")
+        # OWA 偶发未挂载搜索框；与手动操作一致：进入搜索页后再刷新一次更稳定
+        await page.reload(wait_until="domcontentloaded", timeout=30000)
+        await page.wait_for_timeout(2000)
+        print("已跳转到搜索页面（已刷新一次）")
     else:
         base_url = (config or {}).get("email", {}).get("url", "").rstrip("/")
         if "#" in base_url:
